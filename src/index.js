@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         // when a team is clicked, go to team landing page
-        if (e.target.className === 'team-name') {
+        if (e.target.classList.contains('team-name')) {
 
             const team_id = e.target.dataset.id
 
@@ -217,17 +217,15 @@ function renderTeamLandingPage(team) {
     teamPanelHeader.style.display = "block"
 
     // title
-    let title = document.createElement('h2')
+    let teamJumbotron = teamPanelHeader.querySelector('section#team-jumbotron')
+    let title = teamJumbotron.querySelector('h1')
     title.textContent = `${team.name}`
     title.dataset.id = team.id
     title.id = 'team-name'
-    teamPanelHeader.appendChild(title)
 
     // rez co
-    let rezCo = document.createElement('h3')
-    rezCo.textContent = `College: ${team.college.name}`
-    teamPanelHeader.appendChild(rezCo)
-
+    let rezCo = teamJumbotron.querySelector('p')
+    rezCo.textContent = `${team.college.name}`
 
     // links for matches, results, stats, squads
     let infoDiv = document.querySelector('div#info-div')
@@ -255,10 +253,10 @@ function renderTeamLandingPage(team) {
 
 
     // set text for links
-    matches.textContent = "Matches  "
-    results.textContent = "Results  "
-    stats.textContent = "Stats  "
-    squads.textContent = "Squads  "
+    matches.textContent = "Matches"
+    results.textContent = "Results"
+    stats.textContent = "Stats"
+    squads.textContent = "Squads"
 
     // line break
     addLineBreak(teamPanel)
@@ -323,35 +321,50 @@ function renderSports(sports) {
 }
 
 function renderSportLandingPage(sport) {
-    // make sports-panel disapper
+    // make sports-panel disappear
     let sportsPanel = document.querySelector("div#sports-panel")
     sportsPanel.style.display = "none"
+
+    // make home-page jumbotron disappear
+    let homepageJumbotron = document.querySelector("section#homepage-jumbotron")
+    homepageJumbotron.style.display = "none"
 
     // let sport-panel appear
     let sportPanel = document.querySelector("div#sport-panel")
     sportPanel.style.display = "block"
 
     // name
-    let nameTag = document.createElement('h2')
+    let sportJumbotron = document.querySelector('section#sport-jumbotron')
+    let nameTag = sportJumbotron.querySelector('h1')
     nameTag.dataset.id = sport.id
     nameTag.className = 'sport'
     nameTag.textContent = `${sport.name}`
-    sportPanel.appendChild(nameTag)
 
     // teams
-    let teamSpans = document.createElement('div')
-    teamSpans.className = 'team-list'
+    let teamNav = document.querySelector('nav#sport-panel-nav')
     let teams = sport.teams
 
     teams.forEach(team => {
-        let teamSpan = document.createElement('span')
-        teamSpan.className = 'team-name'
-        teamSpan.dataset.id = team.id
-        teamSpan.textContent = `${team.name}  `
-        teamSpans.appendChild(teamSpan)
+
+        let teamLink = document.createElement('a')
+        teamLink.classList.add("nav-link")
+        teamLink.classList.add("team-name")
+        // first link should be active
+        if (teamNav.childElementCount === 0) {
+            teamLink.classList.add("active")
+        }
+
+        let teamImg = document.createElement('img')
+        teamImg.src = team.college.shield
+
+        teamLink.appendChild(teamImg)
+        teamLink.dataset.id = team.id
+        teamLink.textContent = `${team.name}`
+
+        teamNav.appendChild(teamLink)
     });
 
-    sportPanel.appendChild(teamSpans)
+    sportPanel.appendChild(teamNav)
 
 
     // picture carousel - work on this when working on frontend
@@ -359,7 +372,7 @@ function renderSportLandingPage(sport) {
     let carouselInner = document.createElement('div')
 
     // upcoming fixtures
-    let matches = sport.matches
+    let matches = sport.matches.filter(isNotCompleted)
 
     createMatchList(matches, sportPanel)
 }
@@ -414,7 +427,7 @@ function createMatchList(matches, parent) {
     })
 
     let matchList = document.createElement('ul')
-    matchList.className = "match-list"
+    matchList.classList.add("list-group", "list-group-flush")
     parent.appendChild(matchList)
 
     fetch(URL_PREFIX + 'teams')
@@ -424,6 +437,7 @@ function createMatchList(matches, parent) {
                 const match = uniqMatches[i];
 
                 let matchRow = document.createElement('li')
+                matchRow.classList.add("list-group-item")
                 formatMatchRow(match, matchRow, teams)
 
                 matchList.appendChild(matchRow)
