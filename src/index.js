@@ -8,6 +8,8 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(sports => {
 
             renderSports(sports)
+
+            // renderHomePageCarousel() work on other stuff for now
         })
 
 
@@ -46,6 +48,34 @@ document.addEventListener("DOMContentLoaded", () => {
     })
 
 })
+
+function renderHomePageCarousel() {
+    let homePageCarousel = document.querySelector("div#home-page-carousel")
+    let homePageCarouselInner = homePageCarousel.querySelector("div.carousel-inner")
+
+    let numPics = 10
+
+    for (let i = 0; i < numPics; i++) {
+        // create div for carousel item
+        let carouselItem = document.createElement('div')
+        carouselItem.classList.add("carousel-item")
+        
+        // first item should be active else carousel won't show
+        if (homePageCarouselInner.childElementCount === 2) {
+            carouselItem.classList.add("active")
+        }
+
+        // get carousel img from folder
+        let carouselItemImage = document.createElement('img')
+        carouselItemImage.src = `src/sport-images/basketball/${i+1}.jpg`
+        
+        // appendages
+        carouselItem.appendChild(carouselItemImage)
+        homePageCarouselInner.prepend(carouselItem)
+            
+    }
+
+}
 
 function renderTeamSection(section, parent) {
 
