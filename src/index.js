@@ -1,7 +1,5 @@
 const URL_PREFIX = 'http://localhost:3000/';
 
-document.addEventListener("DOMContentLoaded", () => {
-
     // home page
     fetch(URL_PREFIX + 'sports')
         .then(r => r.json())
@@ -11,6 +9,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // renderHomePageCarousel() work on other stuff for now
         })
+
+document.addEventListener("DOMContentLoaded", () => {
+
+
 
 
     document.addEventListener("click", e => {
@@ -31,10 +33,14 @@ document.addEventListener("DOMContentLoaded", () => {
         if (e.target.classList.contains('team-name')) {
 
             const team_id = e.target.dataset.id
+            const sportName = document.querySelector('h1.sport').textContent
 
             fetch(URL_PREFIX + 'teams/' + `${team_id}`)
                 .then(r => r.json())
-                .then(renderTeamLandingPage)
+                .then(team => {
+                    console.log(sportName)
+                    renderTeamLandingPage(team, sportName)
+                })
         }
 
         // when a section in the team landing page is clicked, show details about that section
@@ -78,8 +84,10 @@ function renderHomePageCarousel() {
 }
 
 function renderTeamSection(section, parent) {
+    let teamJumbotron = document.querySelector('h1#team-name')
+    let teamId = parseInt(teamJumbotron.dataset.id, 10)
+    let teamSportName = teamJumbotron.dataset.sport
 
-    let teamId = parseInt(document.querySelector('h2#team-name').dataset.id, 10)
     let teamPanelSectionContent = document.querySelector('div#team-panel-section-content')
     teamPanelSectionContent.style.display = 'block'
     parent.style.display = "block"
@@ -99,15 +107,13 @@ function renderTeamSection(section, parent) {
                     break;
 
                 case "matches-info":
-                    content.textContent = "this is the matches info section"
-                    let upcomingMatches = matches.filter(isNotCompleted)
-                    createMatchList(upcomingMatches, parent)
+                    isUpcoming = true
+                    createMatchList(teamSportName, parent, team, isUpcoming)
                     break;
 
                 case "results-info":
-                    content.textContent = "this is the results info section"
-                    let completedMatches = matches.filter(isCompleted)
-                    createMatchList(completedMatches, parent)
+                    isUpcoming = false
+                    createMatchList(teamSportName, parent, team, isUpcoming)
                     break;
 
                 case "stats-info":
@@ -202,7 +208,7 @@ function isInCurrentTeam(player) {
     return player.team_id == this
 }
 
-function renderTeamLandingPage(team) {
+function renderTeamLandingPage(team, sportName) {
 
     // let sport-panel disappear
     let sportPanel = document.querySelector("div#sport-panel")
@@ -221,6 +227,7 @@ function renderTeamLandingPage(team) {
     let title = teamJumbotron.querySelector('h1')
     title.textContent = `${team.name}`
     title.dataset.id = team.id
+    title.dataset.sport = sportName
     title.id = 'team-name'
 
     // rez co
@@ -354,17 +361,15 @@ function renderSportLandingPage(sport) {
             teamLink.classList.add("active")
         }
 
-        let teamImg = document.createElement('img')
-        teamImg.src = team.college.shield
+        // let teamImg = document.createElement('img')
+        // teamImg.src = team.college.shield
+        // teamLink.appendChild(teamImg)
 
-        teamLink.appendChild(teamImg)
         teamLink.dataset.id = team.id
         teamLink.textContent = `${team.name}`
 
         teamNav.appendChild(teamLink)
     });
-
-    sportPanel.appendChild(teamNav)
 
 
     // picture carousel - work on this when working on frontend
@@ -373,23 +378,34 @@ function renderSportLandingPage(sport) {
 
     // upcoming fixtures
     let matches = sport.matches.filter(isNotCompleted)
+    let matchBox = sportPanel.querySelector('div#upcoming-matches-list-for-sport')
 
-    createMatchList(matches, sportPanel)
+    createMatchList(sport.name, matchBox)
 }
 
-function getMatchScore(match) {
-    let team_1_id = match.match_teams[0].team_id
-    let score_1 = match.match_teams[0].score
-    let team_2_id = match.match_teams[1].team_id
-    let score_2 = match.match_teams[1].score
+function getMatchScore(match, parent) {
+    let team_1_name = match.name.split(' vs ')[0]
+    //let score_1 = match.match_teams[0].score
+    let team_2_name = match.name.split(' vs ')[1]
+    //let score_2 = match.match_teams[1].score
 
     // fetch to get team names
+    let scoreCard = ''
     fetch(URL_PREFIX + 'teams')
         .then(r => r.json())
         .then(teams => {
-            team_1 = teams.find(({ id }) => id === team_1_id)
-            team_2 = teams.find(({ id }) => id === team_2_id)
-            return `${team_1.name}: ${score_1}, ${team_2.name}: ${score_2}`
+            let team_1 = teams.find(({ name }) => name === team_1_name)
+            let team_2 = teams.find(({ name }) => name === team_2_name)
+
+            let mt_1 = team_1.match_teams.find(({ match_id }) => match_id === match.id)
+            let mt_2 = team_2.match_teams.find(({ match_id }) => match_id === match.id)
+
+            let team_1_score = mt_1.score
+            let team_2_score = mt_2.score
+
+            //console.log(`${team_1.name}: ${team_1_score}, ${team_2.name}: ${team_2_score}`)
+            scoreCard = `Result: ${team_1_score}:${team_2_score}`
+            parent.textContent = scoreCard
         })
 }
 
@@ -416,36 +432,169 @@ function formatMatchRow(match, parent, teams) {
     
 }
 
-function createMatchList(matches, parent) {
-    // make sure list is unique
-    uniqMatches = matches.filter(function isNotDupe(match, pos) {
-        let matchId = match.id
+// function createMatchListByTeam(team, parent) {
+//     // make sure list is unique
+//     uniqMatches = team.matches.filter(function isNotDupe(match, pos) {
+//         let matchId = match.id
 
-        // matchID shouldn't appear anywhere else before
-        const matchingMatch = matches.find(({ id }) => id === matchId)
-        return matches.indexOf(matchingMatch) === pos
-    })
+//         // matchID shouldn't appear anywhere else before
+//         const matchingMatch = matches.find(({ id }) => id === matchId)
+//         return matches.indexOf(matchingMatch) === pos
+//     })
 
-    let matchList = document.createElement('ul')
-    matchList.classList.add("list-group", "list-group-flush")
-    parent.appendChild(matchList)
 
-    fetch(URL_PREFIX + 'teams')
+    
+// }
+
+function createMatchList(sportName, parent, team=null, isUpcoming=true) {
+
+    fetch(URL_PREFIX + 'matches')
         .then(r => r.json())
-        .then(teams => {
-            for (let i = 0; i < uniqMatches.length; i += 1) {
-                const match = uniqMatches[i];
+        .then(matches => {
 
-                let matchRow = document.createElement('li')
-                matchRow.classList.add("list-group-item")
-                formatMatchRow(match, matchRow, teams)
+            let matchDates = Object.keys(matches[sportName])
 
-                matchList.appendChild(matchRow)
-            }})
+            // if a team parameter is given, i only want to see matches for that team
+            if (team) {
+                matchesByDate = {}
+                //matches = matches[sportName].filter(playedByThisTeam, team)
+                matchesForThisSport = matches[sportName]
+                
+                for (const date in matchesForThisSport) {
+                    
+                    if (Object.hasOwnProperty.call(matchesForThisSport, date)) {
+                        const matchesOnDate = matchesForThisSport[date];
+    
+                        // filter matches by date for this team
+                        matchesByDateForTeam = matchesOnDate.filter(playedByThisTeam, team)
+                        
+                        matchesByDate[date] = matchesByDateForTeam
+                    }
+                }
+                // make an array of dates
+                matchesForThisSport = matchesByDate
 
+                matchDates = Object.keys(matchesForThisSport)
+
+                for (const date in matchesForThisSport) {
+                    if (Object.hasOwnProperty.call(matchesForThisSport, date)) {
+                        if (matchesForThisSport[date].length === 0) {
+                            let i = matchDates.indexOf(date)
+                            matchDates.splice(i, 1)
+                        }
+                    }
+                }   
+                
+            }
+            
+            // match list differs depending on whether we want past or upcoming
+            let matchDatesToShow = matchDates
+            if (isUpcoming) {
+                matchDatesToShow = matchDates.filter(isNotCompletedII) 
+            } else {
+                matchDatesToShow = matchDates.filter(isCompletedII) 
+            }
+
+            // list the matches on each date
+            matchDatesToShow.forEach(date => {
+                
+                // make a row for the date
+                let dateDiv = document.createElement('div')
+                dateDiv.classList.add("row", "p-2")
+
+                let dateDivText = document.createElement('h3')
+                dateDivText.textContent = date
+
+                // make a list group for the matches following
+                let matchList = document.createElement('ul')
+                matchList.classList.add("list-group", "list-group-flush")
+
+                // for each matchup
+                matches[sportName][date].forEach(match => {
+                    if (team) {
+
+                        if (!match.name.includes(team.name)) {
+                            return
+                        }
+                    }
+                    // make a row for the matchup
+                    let matchRow = document.createElement('li')
+                    matchRow.classList.add("list-group-item", "justify-content-between", "align-items-center")
+                    
+                    let matchName = document.createElement('p')
+                    matchName.classList.add("float-left")
+                    matchName.textContent = match.name
+                    matchRow.appendChild(matchName)
+
+                    if (isUpcoming) {
+                        let matchTime = document.createElement('p')
+                        matchTime.textContent = `Time: ${formatTime(match.date_time)}`
+                        matchTime.classList.add("float-right")
+                        matchRow.appendChild(matchTime)
+                    } else {
+                        let matchScore = document.createElement('p')
+                        getMatchScore(match, matchScore)
+                        matchScore.classList.add("float-right")
+                        matchRow.appendChild(matchScore)
+                    }
+
+                    
+                    
+                    matchList.appendChild(matchRow)
+                });
+
+                // appendages
+                dateDiv.appendChild(dateDivText)
+                parent.appendChild(dateDiv)
+                parent.appendChild(matchList)
+
+
+            }); 
+        })
 }
 
+function name(params) {
+    
+}
 
+function playedByThisTeam(match) {
+    let matches = this.matches
+    return matches.find(({ id }) => id === match.id)
+}
+
+function formatTime(dateTime) {
+    
+    let fullDate = new Date(dateTime)
+    let fullTime = fullDate.toString().split(' ')[4]
+    let formattedTime = fullTime.slice(0,5)
+    return formattedTime
+    
+}
+
+function formatDate(date) {
+    let fullDate = new Date(date)
+    let formattedDate = fullDate.toDateString()
+
+    return formattedDate
+}
+
+function isNotCompletedII(date) {
+
+    let dateFormatted = Date.parse(date)
+    let today = new Date();
+    let todayFormatted = Date.parse(today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate())
+
+    return dateFormatted > todayFormatted
+}
+
+function isCompletedII(date) {  
+    let dateFormatted = Date.parse(date)
+    let today = new Date();
+    let todayFormatted = Date.parse(today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate())
+
+    return dateFormatted < todayFormatted
+    
+}
 
 
 

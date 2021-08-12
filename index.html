@@ -70,6 +70,11 @@
 
     </nav>
 
+    <div id="upcoming-matches-list-for-sport" class="container">
+
+
+    </div>
+
   </div>
 
   <div id="team-panel" style="display: none;">
@@ -83,14 +88,31 @@
       </section>
     </div>
 
-
+    <div id="info-div"></div>
     <div id="team-panel-section-content" style="display: none;">
 
       <div id="matches-info" style="display: none;"></div>
 
       <div id="results-info" style="display: none;"></div>
 
-      <div id="stats-info" style="display: none;"></div>
+      <div id="stats-info" style="display: none;">
+        <table class="table table-borderless">
+          <tbody>
+            <tr>
+              <th scope="row">Matches Played</th>
+              <td id="matches-played"></td>
+            </tr>
+            <tr>
+              <th scope="row">Matches Won</th>
+              <td id="matches-won"></td>
+            </tr>
+            <tr>
+              <th scope="row">Matches Lost</th>
+              <td id="matches-lost"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
       <div id="squads-info" style="display: none;"></div>
 
@@ -99,17 +121,21 @@
   </div>
 
 
-  <footer class="text-muted">
+  <footer class="text-muted justify-content-between align-items-center">
     <div class="container">
-      <p class="float-right">
-        <a href="#">Back to top</a>
-      </p>
       <p class="float-left">
         <img src="src/yale-logos/yale-logo-blue.png" alt="yale logo">
       </p>
-      <p class="float-middle">
+
+      <p>
         Copyright © 2021 Yale University · All rights reserved
       </p>
+
+      <p class="float-right">
+        <a href="#">Back to top</a>
+      </p>
+
+    </div>
     </div>
 
   </footer>
@@ -121,3 +147,4 @@
 </body>
 
 </html>
+
