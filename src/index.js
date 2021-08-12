@@ -92,41 +92,28 @@ function renderTeamSection(section, parent) {
     teamPanelSectionContent.style.display = 'block'
     parent.style.display = "block"
 
-    let content = document.createElement('p')
+
 
     // consider making the fetch before the switch
     fetch(URL_PREFIX + 'teams/' + `${teamId}`)
         .then(r => r.json())
         .then(team => {
-            let matches = team.matches
-            switch (section) {
-                case "squads-info":
-                    content.textContent = "this is the squads info section"
-                    // get the squad 
-                    renderPlayerList(team, parent) // consider merging this with createMatchList
-                    break;
 
-                case "matches-info":
-                    isUpcoming = true
-                    createMatchList(teamSportName, parent, team, isUpcoming)
-                    break;
+            let squadList = document.querySelector('div#squad-list')
+            renderPlayerList(team, squadList) // consider merging this with createMatchList
 
-                case "results-info":
-                    isUpcoming = false
-                    createMatchList(teamSportName, parent, team, isUpcoming)
-                    break;
+            // match tab
+            //let matchListTab = document.querySelector('div#nav-matches')
+            isUpcoming = true
+            //createMatchList(teamSportName, matchListTab, team, isUpcoming)
 
-                case "stats-info":
-                    content.textContent = "this is the stats info section"
-                    createStatsList(team, parent)
-                    break;
+            isUpcoming = false
+            createMatchList(teamSportName, parent, team, isUpcoming)
 
-                default:
-                    break;
-            }
+            createStatsList(team, parent)
         })
 
-    parent.appendChild(content)
+
 
 }
 
@@ -136,20 +123,15 @@ function createStatsList(team, parent) {
     parent.appendChild(statsList)
 
     // stats: number of matches played, won and lost
-    let matchesPlayedLi = document.createElement('li')
-    let matchesWonLi = document.createElement('li')
-    let matchesLostLi = document.createElement('li')
+    let matchesPlayedBox = document.querySelector('td#matches-played')
+    let matchesWonBox = document.querySelector('td#matches-won')
+    let matchesLostBox = document.querySelector('td#matches-lost')
+    console.log(matchesLostBox)
 
     // add content
-    matchesPlayedLi.textContent = `Matches Played: ${getNumMatchesPlayed(team)}`
-    matchesWonLi.textContent = `Matches Won: ${getNumMatchesWon(team)}`
-    matchesLostLi.textContent = `Matches Lost: ${getNumMatchesLost(team)}`
-
-    // append
-    statsList.appendChild(matchesPlayedLi)
-    statsList.appendChild(matchesWonLi)
-    statsList.appendChild(matchesLostLi)
-    parent.appendChild(statsList)
+    matchesPlayedBox.textContent = `${getNumMatchesPlayed(team)}`
+    matchesWonBox.textContent = `${getNumMatchesWon(team)}`
+    matchesLostBox.textContent = `${getNumMatchesLost(team)}`
 
 }
 
@@ -192,16 +174,44 @@ function renderPlayerList(team, parent) {
 
     // pick the players in the current team
     let currentTeamPlayers = team.players
-    let playerList = document.createElement('ul')
+    let playerList = parent.querySelector('div.row')
 
     // generate list of players 
     currentTeamPlayers.forEach(player => {
-        let playerLi = document.createElement('li')
-        playerLi.textContent = `${player.first_name} ${player.last_name}`
-        playerList.appendChild(playerLi)
+        let playerCol = document.createElement('div')
+        playerCol.className = "col-md-4"
+
+        let playerCard = document.createElement('div')
+        playerCard.classList.add("card", "mb-4", "box-shadow", "text-white")
+
+        let playerImg = document.createElement('img')
+        playerImg.dataset.src = "holder.js/100px225?theme=thumb&bg=55595c&fg=eceeef&text=Thumbnail"
+        playerImg.style.height = "225px"
+        playerImg.style.width = "100%"
+        playerImg.src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22208%22%20height%3D%22225%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20208%20225%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_17b30b02b30%20text%20%7B%20fill%3A%23eceeef%3Bfont-weight%3Abold%3Bfont-family%3AArial%2C%20Helvetica%2C%20Open%20Sans%2C%20sans-serif%2C%20monospace%3Bfont-size%3A11pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_17b30b02b30%22%3E%3Crect%20width%3D%22208%22%20height%3D%22225%22%20fill%3D%22%2355595c%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%2266.9296875%22%20y%3D%22117.45%22%3EThumbnail%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E"
+
+        let cardBody = document.createElement('div')
+        cardBody.classList.add("card-img-overlay")
+
+        let cardTitle = document.createElement('h5')
+        cardTitle.className = "player-title"
+        cardTitle.textContent = `${player.first_name} ${player.last_name}`
+
+        let cardStretchedLink = document.createElement('a')
+        cardStretchedLink.href = "#"
+        cardStretchedLink.classList.add("stretched-link", "sport-header")
+        cardStretchedLink.dataset.id = player.id
+        
+        // add to doc
+        cardBody.appendChild(cardTitle)
+        cardBody.appendChild(cardStretchedLink)
+        playerCard.appendChild(playerImg)
+        playerCard.appendChild(cardBody)
+        playerCol.appendChild(playerCard)
+        playerList.appendChild(playerCol)
     });
 
-    parent.appendChild(playerList)
+
 }
 
 function isInCurrentTeam(player) {
@@ -234,42 +244,27 @@ function renderTeamLandingPage(team, sportName) {
     let rezCo = teamJumbotron.querySelector('p')
     rezCo.textContent = `${team.college.name}`
 
-    // links for matches, results, stats, squads
-    let infoDiv = document.querySelector('div#info-div')
-    infoDiv.style.display = "block"
+    // matches content
+    let teamId = parseInt(title.dataset.id, 10)
+    let teamSportName = title.dataset.sport
 
-    let matches = document.createElement('a')
-    matches.id = "matches-info"
-    matches.classList.add("info")
-    matches.classList.add("matches-info")
+    fetch(URL_PREFIX + 'teams/' + `${teamId}`)
+        .then(r => r.json())
+        .then(team => {
 
-    let results = document.createElement('a')
-    results.id = "results-info"
-    results.classList.add("info")
-    results.classList.add("results-info")
+            // match tab content
+            let matchListTab = document.querySelector('div#nav-matches')
+            isUpcoming = true
+            createMatchList(teamSportName, matchListTab, team, isUpcoming)
 
-    let stats = document.createElement('a')
-    stats.id = "stats-info"
-    stats.classList.add("info")
-    stats.classList.add("stats-info")
+            // results tab content
+            let resultsListTab = document.querySelector('div#nav-results')
+            isUpcoming = false
+            createMatchList(teamSportName, resultsListTab, team, isUpcoming)
 
-    let squads = document.createElement('a')
-    squads.id = "squads-info"
-    squads.classList.add("info")
-    squads.classList.add("squads-info")
+            // stats tab content
 
-
-    // set text for links
-    matches.textContent = "Matches"
-    results.textContent = "Results"
-    stats.textContent = "Stats"
-    squads.textContent = "Squads"
-
-    // line break
-    addLineBreak(teamPanel)
-
-    infoDiv.append(matches, results, stats, squads)
-
+        })
 }
 
 function addLineBreak(parent) {

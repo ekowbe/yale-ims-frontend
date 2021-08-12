@@ -78,7 +78,7 @@
   </div>
 
   <div id="team-panel" style="display: none;">
-
+  
     <div id="team-panel-header" style="display: none;">
       <section id="team-jumbotron" class="jumbotron text-center">
         <div class="container">
@@ -87,38 +87,70 @@
         </div>
       </section>
     </div>
-
-    <div id="info-div"></div>
-    <div id="team-panel-section-content" style="display: none;">
-
-      <div id="matches-info" style="display: none;"></div>
-
-      <div id="results-info" style="display: none;"></div>
-
-      <div id="stats-info" style="display: none;">
-        <table class="table table-borderless">
-          <tbody>
-            <tr>
-              <th scope="row">Matches Played</th>
-              <td id="matches-played"></td>
-            </tr>
-            <tr>
-              <th scope="row">Matches Won</th>
-              <td id="matches-won"></td>
-            </tr>
-            <tr>
-              <th scope="row">Matches Lost</th>
-              <td id="matches-lost"></td>
-            </tr>
-          </tbody>
-        </table>
+  
+    <div class="container">
+      <nav>
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+          <button class="nav-link active" id="nav-matches-tab" data-toggle="tab" data-bs-target="#nav-matches"
+            type="button" role="tab" aria-controls="nav-matches" aria-selected="true">Matches</button>
+          <button class="nav-link" id="nav-results-tab" data-toggle="tab" data-target="#nav-results" type="button"
+            role="tab" aria-controls="nav-results" aria-selected="false">Results</button>
+          <button class="nav-link" id="nav-stats-tab" data-toggle="tab" data-target="#nav-stats" type="button" role="tab"
+            aria-controls="nav-stats" aria-selected="false">Stats</button>
+          <button class="nav-link" id="nav-squad-tab" data-toggle="tab" data-target="#nav-squad" type="button" role="tab"
+            aria-controls="nav-squad" aria-selected="false">Squads</button>
+        </div>
+      </nav>
+  
+      <div id="nav-tabContent" class="tab-content">
+        <div class="tab-pane fade show active" id="nav-matches" role="tabpanel" aria-labelledby="nav-matches-tab">
+        </div>
+        <div class="tab-pane fade" id="nav-results" role="tabpanel" aria-labelledby="nav-results-tab"></div>
+        <div class="tab-pane fade" id="nav-stats" role="tabpanel" aria-labelledby="nav-stats-tab">
+          
+          <div id="stats-info" style="display: none;">
+            <table class="table table-borderless">
+              <tbody>
+                <tr>
+                  <th scope="row">Matches Played</th>
+                  <td id="matches-played"></td>
+                </tr>
+                <tr>
+                  <th scope="row">Matches Won</th>
+                  <td id="matches-won"></td>
+                </tr>
+                <tr>
+                  <th scope="row">Matches Lost</th>
+                  <td id="matches-lost"></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="tab-pane fade" id="nav-squad" role="tabpanel" aria-labelledby="nav-squad-tab">
+          
+          <div id="squads-info" style="display: none;">
+  
+            <div id="squad-list" class="album py-5">
+              <div class="container">
+  
+                <div class="row">
+  
+                </div>
+  
+              </div>
+  
+  
+            </div>
+          </div>
+  
+        </div>
+  
       </div>
-
-      <div id="squads-info" style="display: none;"></div>
-
     </div>
-
   </div>
+
+
 
 
   <footer class="text-muted justify-content-between align-items-center">
@@ -147,4 +179,6 @@
 </body>
 
 </html>
+
+
 
